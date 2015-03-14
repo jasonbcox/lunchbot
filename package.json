@@ -6,7 +6,8 @@
   "dependencies": {
     "irc": "^0.3.9",
     "kiwi": "^0.2.2",
-    "node-import": "^0.6.0"
+    "node-import": "^0.6.0",
+    "underscore": "^1.8.2"
   },
   "devDependencies": {},
   "scripts": {
