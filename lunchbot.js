@@ -2,17 +2,12 @@ var irc = require("irc");
 require('node-import');
 
 imports("string_extensions.js");
+imports("config.js");
 
 // Define constants up here.
 var channels = {
     GENERAL: "#general"
 }
-
-var config = {
-    channels: [channels.GENERAL],
-    server: "irc.corp.linkedin.com",
-    botName: "lunchbot"
-};
 
 var commands = {
     JOIN: "lunchbot join",
@@ -22,20 +17,19 @@ var commands = {
     HELP: "lunchbot help"
 }
 
+var members = config.defaultMembers;
+
 var messages = {
-    var ASCII_TRAIN = \
-    "
-       _||__|  |  ______   ______   ______ 
-      (        | |      | |      | |      |
-      /-()---() ~ ()--() ~ ()--() ~ ()--()
-    ";
+    ASCII_TRAIN: [
+      " _||__|  |  ______   ______   ______ ",
+      "(        | |      | |      | |      |",
+      "/-()---() ~ ()--() ~ ()--() ~ ()--()"
+    ]
 }
 
 
 // Now define the program variables.
 var lastTrainTime = null;
-
-var members = ["kchandra", "kroy", "Yukikaze", "Jason"]
 
 var client = new irc.Client(config.server, config.botName, {channels: config.channels});
 var names = null;
@@ -44,6 +38,7 @@ var names = null;
 // keep hold of that.
 client.addListener("names" + channels.GENERAL, function(nicks) {
     names = new Set(nicks.keys());
+    console.log("Current members of " + channels.GENERAL)
 });
 
 // Whenever someone joins, update the global list of names.
