@@ -1,0 +1,17 @@
+{
+  "name": "lunchbot",
+  "version": "1.0.0",
+  "description": "IRC bot that helps keep track of members going to lunch.",
+  "main": "lunchbot.js",
+  "dependencies": {
+    "irc": "^0.3.9",
+    "kiwi": "^0.2.2",
+    "node-import": "^0.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Krishnan Chandra <me@krishnanchandra.com>",
+  "license": "ISC"
+}
