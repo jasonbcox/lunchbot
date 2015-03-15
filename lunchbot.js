@@ -1,10 +1,10 @@
 var irc = require("irc");
 var _ = require("underscore");
 require("node-import");
-var utils = require("./utils.js");
+var utils = require("./utils");
 
-imports("string_extensions.js");
-imports("config.js");
+imports("./string_extensions");
+imports("./config");
 
 var commands = {
     JOIN: "lunchbot join",
@@ -12,7 +12,7 @@ var commands = {
     TRAIN: "lunchbot train",
     ADD: "lunchbot add",
     HELP: "lunchbot help"
-}
+};
 
 var members = config.defaultMembers || [];
 
@@ -22,7 +22,7 @@ var messages = {
       "(        | |      | |      | |      |",
       "/-()---() ~ ()--() ~ ()--() ~ ()--() "
     ]
-}
+};
 
 
 // Now define the program variables.
@@ -52,7 +52,7 @@ var removeUser = function(nick, reason, message) {
     names = _.without(names, nick);
     members = _.without(members, nick);
     console.log(nick + " has left " + channels.GENERAL);
-}
+};
 
 client.addListener("part" + channels.GENERAL, removeUser);
 client.addListener("kick" + channels.GENERAL, removeUser);

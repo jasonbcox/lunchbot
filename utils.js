@@ -5,5 +5,5 @@ module.exports = {
 		var millisPerHour = 1000 * 60 * 60;
 	    return ((Date.now() - lastTrainTime) >= millisPerHour);
 	}
+};
 
-}
