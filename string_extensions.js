@@ -23,5 +23,15 @@ if (!String.prototype.trim) {
 
 // Then adding in a function to Date
 if (!Date.now) {
-    Date.now = function() { return new Date().getTime(); }
+  Date.now = function() {
+    return new Date().getTime();
+  }
+}
+
+if (!Array.prototype.addIfNotPresent) {
+  Array.prototype.addIfNotPresent = function(elem) {
+    if (_.contains(this, elem)) {
+      this.push(elem);
+    }
+  }
 }
