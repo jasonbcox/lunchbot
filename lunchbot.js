@@ -2,9 +2,7 @@ var irc = require("irc");
 var _ = require("underscore");
 var str = require("underscore.string");
 require("node-import");
-var utils = require("./utils");
 
-imports("./string_extensions");
 imports("./config");
 
 if (!Array.prototype.addIfNotPresent) {
@@ -99,6 +97,13 @@ client.addListener("nick", function(oldnick, newnick, channels, message) {
   console.log(oldnick + " has changed nicks to " + newnick);
 });
 
+var validLunchTrainTime = function(lastTrainTime) {
+    // Milliseconds in an hour.
+    var millisPerHour = 1000 * 60 * 60;
+    return ((_.now() - lastTrainTime) >= millisPerHour);
+  }
+}
+
 // Now make sure we parse out messages correctly.
 client.addListener("message", function(from, to, text, message) {
   // We're not gonna handle private messages
@@ -116,7 +121,7 @@ client.addListener("message", function(from, to, text, message) {
   } else if (str(text).startsWith(commands.TRAIN)) {
     var TRAIN_MESSAGE = "choo choo";
     if (from !== config.botName && utils.validLunchTrainTime(lastTrainTime)) {
-      lastTrainTime = Date.now();
+      lastTrainTime = _.now();
       client.say(to, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
       client.say(to, messages.ASCII_TRAIN.join("\n"));
     }
