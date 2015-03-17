@@ -52,27 +52,37 @@ var names = [];
 
 // When we first receive the list of channel members, make sure to 
 // keep hold of that.
-client.addListener("names" + channels.GENERAL, function(nicks) {
-  names = Object.keys(nicks);
-  console.log("Current members of " + channels.GENERAL + ": " + names.join(","))
+client.addListener("names", function(channel, nicks) {
+  names.concat(Object.keys(nicks));
+  console.log("Current members of " + channel + ": " + names.join(","))
 });
 
 // Whenever someone joins, update the global list of names.
-client.addListener("join" + channels.GENERAL, function(nick, message) {
+client.addListener("join", function(channel, nick, message) {
   names.addIfNotPresent(nick);
-  console.log(nick + " has joined " + channels.GENERAL);
+  console.log(nick + " has joined " + channel);
 });
 
 // When someone leaves, whether intentional or not, remove their name
 // from the list.
-var removeUser = function(nick, reason, message) {
+var removeUser = function(nick, reason, channels, message) {
   names = _.without(names, nick);
   members = _.without(members, nick);
-  console.log(nick + " has left " + channels.GENERAL);
+  console.log(nick + " has disconnected");
 };
 
-client.addListener("part" + channels.GENERAL, removeUser);
-client.addListener("kick" + channels.GENERAL, removeUser);
+client.addListener("part", function(channel, nick, reason, message) {
+  names = _.without(names, nick);
+  members = _.without(members, nick);
+  console.log(nick + " has disconnected from " + channel);
+});
+
+client.addListener("kick", function(channel, nick, by, reason, message) {
+  names = _.without(names, nick);
+  members = _.without(members, nick);
+  console.log(nick + " has been kicked from " + channel + " by " + by)
+});
+
 client.addListener("quit", removeUser);
 client.addListener("kill", removeUser);
 
@@ -90,30 +100,34 @@ client.addListener("nick", function(oldnick, newnick, channels, message) {
 });
 
 // Now make sure we parse out messages correctly.
-client.addListener("message" + channels.GENERAL, function(from, to, message) {
-  if (str(message).startsWith(commands.JOIN)) {
+client.addListener("message", function(from, to, text, message) {
+  // We're not gonna handle private messages
+  if (to === config.botName) {
+    return;
+  }
+  if (str(text).startsWith(commands.JOIN)) {
     members.addIfNotPresent(from);
     var joinMessage = from + " has joined the lunch train.";
-    client.say(channels.GENERAL, joinMessage);
+    client.say(to, joinMessage);
     console.log(joinMessage);
-  } else if (str(message).startsWith(commands.LEAVE)) {
+  } else if (str(text).startsWith(commands.LEAVE)) {
     members = _.without(members, from);
-    client.say(channels.GENERAL, from + " has left the lunch train :(")
-  } else if (str(message).startsWith(commands.TRAIN)) {
+    client.say(to, from + " has left the lunch train :(")
+  } else if (str(text).startsWith(commands.TRAIN)) {
     var TRAIN_MESSAGE = "choo choo";
     if (from !== config.botName && utils.validLunchTrainTime(lastTrainTime)) {
       lastTrainTime = Date.now();
-      client.say(channels.GENERAL, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
-      client.say(channels.GENERAL, messages.ASCII_TRAIN.join("\n"));
+      client.say(to, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
+      client.say(to, messages.ASCII_TRAIN.join("\n"));
     }
-  } else if (str(message).startsWith(commands.ADD)) {
-    var remainder = str(message).substring(commands.ADD.length).trim().value();
+  } else if (str(text).startsWith(commands.ADD)) {
+    var remainder = str(text).substring(commands.ADD.length).trim().value();
     members.addIfNotPresent(remainder);
-  } else if (str(message).startsWith(commands.HELP)) {
-    client.say(channels.GENERAL, messages.HELP_MESSAGE.join("\n"));
+  } else if (str(text).startsWith(commands.HELP)) {
+    client.say(to, messages.HELP_MESSAGE.join("\n"));
   }
 });
 
 client.addListener("error", function(message) {
-  console.log("Error: " + message);
+  console.log("Error: " + message.command);
 });
