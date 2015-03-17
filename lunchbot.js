@@ -1,10 +1,19 @@
 var irc = require("irc");
 var _ = require("underscore");
+var str = require("underscore.string");
 require("node-import");
 var utils = require("./utils");
 
 imports("./string_extensions");
 imports("./config");
+
+if (!Array.prototype.addIfNotPresent) {
+  Array.prototype.addIfNotPresent = function(elem) {
+    if (_.contains(this, elem)) {
+      this.push(elem);
+    }
+  }
+}
 
 var commands = {
   JOIN: "lunchbot join",
@@ -82,25 +91,25 @@ client.addListener("nick", function(oldnick, newnick, channels, message) {
 
 // Now make sure we parse out messages correctly.
 client.addListener("message" + channels.GENERAL, function(from, to, message) {
-  if (message.startsWith(commands.JOIN)) {
+  if (str(message).startsWith(commands.JOIN)) {
     members.addIfNotPresent(from);
     var joinMessage = from + " has joined the lunch train.";
     client.say(channels.GENERAL, joinMessage);
     console.log(joinMessage);
-  } else if (message.startsWith(commands.LEAVE)) {
+  } else if (str(message).startsWith(commands.LEAVE)) {
     members = _.without(members, from);
     client.say(channels.GENERAL, from + " has left the lunch train :(")
-  } else if (message.startsWith(commands.TRAIN)) {
+  } else if (str(message).startsWith(commands.TRAIN)) {
     var TRAIN_MESSAGE = "choo choo";
     if (from !== config.botName && utils.validLunchTrainTime(lastTrainTime)) {
       lastTrainTime = Date.now();
       client.say(channels.GENERAL, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
       client.say(channels.GENERAL, messages.ASCII_TRAIN.join("\n"));
     }
-  } else if (message.startsWith(commands.ADD)) {
-    var remainder = message.substring(commands.ADD.length).trim();
+  } else if (str(message).startsWith(commands.ADD)) {
+    var remainder = str(message).substring(commands.ADD.length).trim().value();
     members.addIfNotPresent(remainder);
-  } else if (message.startsWith(commands.HELP)) {
+  } else if (str(message).startsWith(commands.HELP)) {
     client.say(channels.GENERAL, messages.HELP_MESSAGE.join("\n"));
   }
 });
