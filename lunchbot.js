@@ -10,7 +10,7 @@ if (!Array.prototype.addIfNotPresent) {
     if (_.contains(this, elem)) {
       this.push(elem);
     }
-  }
+  };
 }
 
 var commands = {
@@ -51,8 +51,8 @@ var names = [];
 // When we first receive the list of channel members, make sure to 
 // keep hold of that.
 client.addListener("names", function(channel, nicks) {
-  names.concat(Object.keys(nicks));
-  console.log("Current members of " + channel + ": " + names.join(","))
+  names = Object.keys(nicks);
+  console.log("Current members of " + channel + ": " + names.join(","));
 });
 
 // Whenever someone joins, update the global list of names.
@@ -78,7 +78,7 @@ client.addListener("part", function(channel, nick, reason, message) {
 client.addListener("kick", function(channel, nick, by, reason, message) {
   names = _.without(names, nick);
   members = _.without(members, nick);
-  console.log(nick + " has been kicked from " + channel + " by " + by)
+  console.log(nick + " has been kicked from " + channel + " by " + by);
 });
 
 client.addListener("quit", removeUser);
@@ -98,11 +98,10 @@ client.addListener("nick", function(oldnick, newnick, channels, message) {
 });
 
 var validLunchTrainTime = function(lastTrainTime) {
-    // Milliseconds in an hour.
-    var millisPerHour = 1000 * 60 * 60;
-    return ((_.now() - lastTrainTime) >= millisPerHour);
-  }
-}
+  // Milliseconds in an hour.
+  var millisPerHour = 1000 * 60 * 60;
+  return ((_.now() - lastTrainTime) >= millisPerHour);
+};
 
 // Now make sure we parse out messages correctly.
 client.addListener("message", function(from, to, text, message) {
@@ -117,10 +116,10 @@ client.addListener("message", function(from, to, text, message) {
     console.log(joinMessage);
   } else if (str(text).startsWith(commands.LEAVE)) {
     members = _.without(members, from);
-    client.say(to, from + " has left the lunch train :(")
+    client.say(to, from + " has left the lunch train :(");
   } else if (str(text).startsWith(commands.TRAIN)) {
     var TRAIN_MESSAGE = "choo choo";
-    if (from !== config.botName && utils.validLunchTrainTime(lastTrainTime)) {
+    if (from !== config.botName && validLunchTrainTime(lastTrainTime)) {
       lastTrainTime = _.now();
       client.say(to, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
       client.say(to, messages.ASCII_TRAIN.join("\n"));
