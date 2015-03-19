@@ -121,7 +121,7 @@ client.addListener("message", function(from, to, text, message) {
     var TRAIN_MESSAGE = "choo choo";
     if (from !== config.botName && validLunchTrainTime(lastTrainTime)) {
       lastTrainTime = _.now();
-      client.say(to, Array.from(members).join(",") + ": " + TRAIN_MESSAGE);
+      client.say(to, members.join(",") + ": " + TRAIN_MESSAGE);
       client.say(to, messages.ASCII_TRAIN.join("\n"));
     }
   } else if (str(text).startsWith(commands.ADD)) {
