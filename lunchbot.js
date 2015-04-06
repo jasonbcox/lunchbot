@@ -66,7 +66,7 @@ client.addListener("join", function(channel, nick, message) {
 var removeUser = function(nick, reason, channels, message) {
   names = _.without(names, nick);
   members = _.without(members, nick);
-  console.log(nick + " has disconnected");
+  console.log(nick + " has disconnected because of " + reason);
 };
 
 client.addListener("part", function(channel, nick, reason, message) {
