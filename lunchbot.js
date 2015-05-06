@@ -13,12 +13,13 @@ if (!Array.prototype.addIfNotPresent) {
   };
 }
 
+var commandPrefix = "!lunchbot ";
 var commands = {
-  JOIN: "lunchbot join",
-  LEAVE: "lunchbot leave",
-  TRAIN: "lunchbot train",
-  ADD: "lunchbot add",
-  HELP: "lunchbot help"
+  JOIN: commandPrefix + "join",
+  LEAVE: commandPrefix + "leave",
+  TRAIN: commandPrefix + "train",
+  ADD: commandPrefix + "add",
+  HELP: commandPrefix + "help",
 };
 
 var members = config.defaultMembers || [];

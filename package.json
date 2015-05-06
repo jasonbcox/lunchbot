@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "IRC bot that helps keep track of members going to lunch.",
   "main": "lunchbot.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jasonbcox/lunchbot.git"
+  },
   "dependencies": {
     "irc": "^0.3.9",
     "node-import": "^0.6.0",
@@ -10,12 +14,15 @@
     "underscore.string": "^3.0.3"
   },
   "devDependencies": {
-    "jslint": "^0.9.0-pre005"
+    "jslint": "^0.9.0-pre005",
     "jshint": "^2.6.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Krishnan Chandra <me@krishnanchandra.com>",
+  "contributors": [
+    "Jason B. Cox <contact@jasonbcox.com>"
+  ],
   "license": "ISC"
 }
