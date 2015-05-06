@@ -15,7 +15,7 @@ if (!Array.prototype.addIfNotPresent) {
 
 var VERSION = "1.1";
 
-var commandPrefix = "!lunchbot ";
+var commandPrefix = "#lunchbot ";
 var commands = {
   JOIN: commandPrefix + "join",
   LEAVE: commandPrefix + "leave",
@@ -70,8 +70,12 @@ client.addListener("names", function(channel, nicks) {
 
 // Whenever someone joins, update the global list of names.
 client.addListener("join", function(channel, nick, message) {
-  names.addIfNotPresent(nick);
-  console.log(nick + " has joined " + channel);
+  if ( nick === config.botName ) {
+    client.say(channel, "Hello! I'm " + config.botName + "! Use '" + commands.HELP + "' for more info.");
+  } else {
+    names.addIfNotPresent(nick);
+    console.log(nick + " has joined " + channel);
+  }
 });
 
 // When someone leaves, whether intentional or not, remove their name
@@ -132,6 +136,7 @@ client.addListener("message", function(from, to, text, message) {
   if (to === config.botName) {
     return;
   }
+
   if (str(text).startsWith(commands.JOIN)) {
     addMember( to, from );
   } else if (str(text).startsWith(commands.LEAVE)) {
