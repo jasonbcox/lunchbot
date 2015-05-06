@@ -7,11 +7,13 @@ imports("./config");
 
 if (!Array.prototype.addIfNotPresent) {
   Array.prototype.addIfNotPresent = function(elem) {
-    if (_.contains(this, elem)) {
+    if (!(_.contains(this, elem))) {
       this.push(elem);
     }
   };
 }
+
+var VERSION = "1.1";
 
 var commandPrefix = "!lunchbot ";
 var commands = {
@@ -19,6 +21,7 @@ var commands = {
   LEAVE: commandPrefix + "leave",
   TRAIN: commandPrefix + "train",
   ADD: commandPrefix + "add",
+  LIST: commandPrefix + "list",
   HELP: commandPrefix + "help",
 };
 
@@ -31,18 +34,27 @@ var messages = {
     "/-()---() ~ ()--() ~ ()--() ~ ()--() "
   ],
   HELP_MESSAGE: [
+    "Lunch Bot v" + VERSION,
     "Possible commands: ",
     commands.JOIN + ": add yourself to the lunch train",
     commands.LEAVE + ": remove yourself from the lunch train",
-    commands.TRAIN + ": declare a lunch train",
-    commands.ADD + ": invoke as 'lunchbot add <nick>', will add the nick to the train if it's in the channel",
+    commands.TRAIN + ": declare a lunch train (can only be activated once per hour)",
+    commands.ADD + " <nick>: will add the nick to the train if it's in the channel",
+    commands.LIST + ": lists the nicks on the lunch train",
     commands.HELP + ": generate this help text"
   ]
 };
 
+var Time = {
+  second: 1000,
+  minute: 1000 * 60,
+  hour: 1000 * 60 * 60,
+  day: 1000 * 60 * 60 *24,
+};
+
 
 // Define the program variables.
-var lastTrainTime = Date.now();
+var lastTrainTime = Date.now() - Time.hour;
 
 var client = new irc.Client(config.server, config.botName, {
   channels: config.channels
@@ -98,11 +110,21 @@ client.addListener("nick", function(oldnick, newnick, channels, message) {
   console.log(oldnick + " has changed nicks to " + newnick);
 });
 
+// Lunch train can only be activated once per hour.
 var validLunchTrainTime = function(lastTrainTime) {
-  // Milliseconds in an hour.
-  var millisPerHour = 1000 * 60 * 60;
-  return ((_.now() - lastTrainTime) >= millisPerHour);
+  return ((_.now() - lastTrainTime) >= Time.hour);
 };
+
+function addMember( chatTo, nick ) {
+  if ( _.contains( names, nick ) ) {
+    members.addIfNotPresent(nick);
+    var joinMessage = nick + " has joined the lunch train.";
+    client.say(chatTo, joinMessage);
+    console.log(joinMessage);
+  } else {
+    client.say(chatTo, "That nick doesn't exist.");
+  }
+}
 
 // Now make sure we parse out messages correctly.
 client.addListener("message", function(from, to, text, message) {
@@ -111,10 +133,7 @@ client.addListener("message", function(from, to, text, message) {
     return;
   }
   if (str(text).startsWith(commands.JOIN)) {
-    members.addIfNotPresent(from);
-    var joinMessage = from + " has joined the lunch train.";
-    client.say(to, joinMessage);
-    console.log(joinMessage);
+    addMember( to, from );
   } else if (str(text).startsWith(commands.LEAVE)) {
     members = _.without(members, from);
     client.say(to, from + " has left the lunch train :(");
@@ -127,7 +146,9 @@ client.addListener("message", function(from, to, text, message) {
     }
   } else if (str(text).startsWith(commands.ADD)) {
     var remainder = str(text).substring(commands.ADD.length).trim().value();
-    members.addIfNotPresent(remainder);
+    addMember( to, remainder );
+  } else if (str(text).startsWith(commands.LIST)) {
+    client.say(to, "Nicks on the lunch train: " + members.join(","));
   } else if (str(text).startsWith(commands.HELP)) {
     client.say(to, messages.HELP_MESSAGE.join("\n"));
   }
